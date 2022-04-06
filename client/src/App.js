@@ -8,12 +8,11 @@ import { MerkleTree } from "merkletreejs"
 import keccak256 from "keccak256"
 import { whitelistAddresses } from "./whitelist"
 import {networks} from "./networks"
-// import Swal from 'sweetalert2'
+import Swal from 'sweetalert2'
 
 const leafNodes = whitelistAddresses.map(addr => keccak256(addr));
 const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true });
-// let connectedContract, contractInterface, walletProvider, provider;
-const CONTRACT_ADDRESS = "0x3B0E32889246644B5764890eC70774b98047bD45"; //mumbai
+const CONTRACT_ADDRESS = "0x88Ea84aDf262016d0f5F03ADbE7D1C30E887a84e"; //mumbai
 // const CONTRACT_ADDRESS = "0x1280A4C2f630DB5EdBf993156cEFC32ce08aC4AA"  //rinkeby
 // const CONTRACT_ADDRESS = "0x4d3bDA5a944e7A8c5806935c209825268a931fdd"  //kovan
 
@@ -34,7 +33,7 @@ const App = () => {
       // setInitLoading(0)
 
       biconomy = new Biconomy(window.ethereum, {
-        apiKey: 'm-0ZuojMT.f8d462b1-b510-4884-bbb8-2493aa2545ad',
+        apiKey: 'wfs01mJEi.5466428b-5bfd-467b-9782-a2ab309cc776',
         debug: true,
       })
       console.log(biconomy, "fdgdg")
@@ -57,6 +56,7 @@ const App = () => {
           )
 
           contractInterface = new ethers.utils.Interface(myNft.abi)
+          setloading(false)
           // setInitLoading(1)
         })
         .onEvent(biconomy.ERROR, (error, message) => {
@@ -168,6 +168,8 @@ const App = () => {
 
   const askContractToMintNft = async () => {
     try {
+      if(currentAccount != ''){
+      setloading(true)
       const { ethereum } = window;
       if (ethereum) {
         let userAddress = selectedAddress
@@ -204,21 +206,76 @@ const App = () => {
           console.log("Transaction hash : ", tx);
           provider.once(tx, (transaction) => {
             console.log(transaction, "emited");
+            setloading(false)
+            Swal.fire({
+              title: 'Minting successfull',
+              html:
+                'Hey there! we are minted successfully completed.' +
+                `<a href=' https://mumbai.polygonscan.com/tx/${transaction.transactionHash}'>mumbai.polygonscan.com</a> ` +
+                '',
+              width: 600,
+              padding: '3em',
+              color: '#716add',
+              background: '#fff url(/images/trees.png)',
+              backdrop: `
+                rgba(0,0,123,0.4)
+                url("/images/nyan-cat.gif")
+                left top
+                no-repeat
+              `
+            })
           });
 
           console.log("Going to pop wallet now to pay gas...")
           console.log("Mining...please wait.")
+          
        
       } else {
         console.log("Ethereum object doesn't exist!");
       }
+    }else{
+      Swal.fire(
+        'Connect wallet',
+        'Befor mint connect with wallet',
+        'question'
+      )
+    }
+      
     } catch (error) {
+      setloading(false)
+      if(error.data.message == "execution reverted: Invalid Merkle Proof."){
+      Swal.fire({
+        icon: 'error',
+        title: 'Minting Failed',
+        text: 'You are not in whitelist ',
+       
+      })
+      
+    }else if(error.data.message == "execution reverted: Address already claimed"){
+      Swal.fire({
+        icon: 'error',
+        title: 'Minting Failed',
+        text: 'You are already claimed',
+       
+      })
+    }else{
+      Swal.fire({
+        icon: 'error',
+        title: 'Minting Failed',
+        text: error.data.message,
+       
+      })
+
+    }
       console.log(error)
     }
   }
 
   useEffect(() => {
     checkIfWalletIsConnected();
+    if(currentAccount != ''){
+      setloading(true)
+    }
 
     if (currentAccount !== '' && network === 'Polygon Mumbai Testnet') {
       console.log('init')
@@ -267,7 +324,7 @@ const App = () => {
                 <button onClick={askContractToMintNft} className="cta-button connect-wallet-button">
                   Mint NFT
                 </button>
-                <a href="https://testnets.opensea.io/collection/eye-on-v2"><img className="opensee" src="https://storage.googleapis.com/opensea-static/Logomark/Logomark-White.png" alt="" srcset="" /></a>
+                <a href="https://testnets.opensea.io/collection/eye-on-v4" target="_blank"><img className="opensee" src="https://storage.googleapis.com/opensea-static/Logomark/Logomark-White.png" alt="" srcset="" /></a>
               </div>
             </div>
             <div className="col-md-6 ff">

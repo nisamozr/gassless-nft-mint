@@ -8,7 +8,7 @@ const main = async () => {
     await nftContract.deployed();
     console.log("Contract deployed to:", nftContract.address);
   // set merklroot of whitelist
-    let setmerkelroot = await nftContract.setMerklRoot("0x88c272f223abbcfb86e16e88a660f482b8f4a272085d3598b9b6f8d98137dd6a")
+    let setmerkelroot = await nftContract.setMerklRoot("0xb64d5a6304914b000bc65b9671a90ae3a5a7e90860f17bdfc0c0f85103981f6f")
     await setmerkelroot.wait()
     console.log("merkelroot set");
   };
